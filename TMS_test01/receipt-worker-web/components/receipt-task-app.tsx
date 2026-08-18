@@ -23,7 +23,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const payload = (await response.json().catch(() => ({}))) as T & { error?: string };
 
   if (!response.ok) {
-    throw new Error(payload.error || '요청을 처리하지 못했습니다.');
+    throw new Error(payload.error || 'We could not process your request.');
   }
   return payload;
 }
@@ -68,7 +68,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         setPhase('task');
         window.setTimeout(() => answerInputRef.current?.focus(), 100);
       } else {
-        throw new Error('현재 작업을 불러오지 못했습니다.');
+        throw new Error('The current task could not be loaded.');
       }
     },
     [finalize],
@@ -90,7 +90,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         try {
           await loadCurrent(id);
         } catch (initialError) {
-          if (!(initialError instanceof Error) || !initialError.message.includes('찾을 수 없습니다')) {
+          if (!(initialError instanceof Error) || !initialError.message.includes('not found')) {
             throw initialError;
           }
           await api('/api/session/open', {
@@ -104,7 +104,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         setError(
           initializationError instanceof Error
             ? initializationError.message
-            : '세션을 준비하지 못했습니다.',
+            : 'The session could not be prepared.',
         );
         setPhase('error');
       }
@@ -167,7 +167,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
       });
       await loadCurrent(sessionId);
     } catch (startError) {
-      setError(startError instanceof Error ? startError.message : '작업을 시작하지 못했습니다.');
+      setError(startError instanceof Error ? startError.message : 'The task could not be started.');
     } finally {
       setBusy(false);
     }
@@ -195,7 +195,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         await finalize(sessionId);
       }
     } catch (submitError) {
-      const message = submitError instanceof Error ? submitError.message : '답변을 저장하지 못했습니다.';
+      const message = submitError instanceof Error ? submitError.message : 'Your answer could not be saved.';
       setError(message);
     } finally {
       setBusy(false);
@@ -207,8 +207,8 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
       <main className="center-stage" aria-busy="true">
         <section className="status-card">
           <span className="spinner" aria-hidden="true" />
-          <h1>작업을 준비하고 있습니다</h1>
-          <p>잠시만 기다려주세요.</p>
+          <h1>Preparing your task</h1>
+          <p>Please wait a moment.</p>
         </section>
       </main>
     );
@@ -219,11 +219,11 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
       <main className="center-stage">
         <section className="status-card error-card">
           <div className="status-icon">!</div>
-          <p className="eyebrow">연결 오류</p>
-          <h1>작업을 불러오지 못했습니다</h1>
+          <p className="eyebrow">Connection error</p>
+          <h1>We could not load the task</h1>
           <p>{error}</p>
           <button className="primary-button" onClick={() => window.location.reload()}>
-            다시 시도
+            Try again
           </button>
         </section>
       </main>
@@ -234,27 +234,27 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
     return (
       <main className="center-stage intro-stage">
         <section className="intro-card">
-          <h1>영수증을 보고<br />질문에 답해주세요</h1>
+          <h1>Review each receipt<br />and answer the question</h1>
           <p className="intro-lead">
-            총 50개의 영수증을 확인하게 됩니다. 각 영수증을 충분히 살펴본 후 정확하게
-            답변해주세요.
+            You will review 50 receipts. Examine each receipt carefully and provide an accurate
+            answer.
           </p>
 
           <div className="instruction-panel">
-            <p className="instruction-title">작업 방법</p>
+            <p className="instruction-title">Instructions</p>
             <ol>
-              <li><span>1</span><p>영수증 이미지를 확인합니다.</p></li>
-              <li><span>2</span><p>화면에 제시된 질문을 확인합니다.</p></li>
-              <li><span>3</span><p>영수증을 바탕으로 답변을 입력합니다.</p></li>
-              <li><span>4</span><p>답변을 제출하면 다음 영수증으로 이동합니다.</p></li>
-              <li><span>5</span><p>50개의 영수증을 완료하면 작업이 종료됩니다.</p></li>
+              <li><span>1</span><p>Review the receipt image.</p></li>
+              <li><span>2</span><p>Read the question shown on the screen.</p></li>
+              <li><span>3</span><p>Enter your answer based on the receipt.</p></li>
+              <li><span>4</span><p>Submit your answer to move to the next receipt.</p></li>
+              <li><span>5</span><p>The task ends after all 50 receipts are completed.</p></li>
             </ol>
-            <div className="time-limit-notice"><TimerIcon /><span>전체 작업 기준 시간은 20분이며, 이후에도 계속 진행할 수 있습니다.</span></div>
+            <div className="time-limit-notice"><TimerIcon /><span>The target time for the full task is 20 minutes. You may continue after that.</span></div>
           </div>
 
           {error && <p className="inline-error" role="alert">{error}</p>}
           <button className="primary-button start-button" onClick={startTask} disabled={busy}>
-            {busy ? '준비 중…' : '작업 시작'}
+            {busy ? 'Preparing…' : 'Start task'}
             {!busy && <ArrowIcon />}
           </button>
         </section>
@@ -268,22 +268,22 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         <section className="status-card complete-card">
           <div className="complete-icon" aria-hidden="true"><CheckIcon /></div>
           <p className="eyebrow">Task complete</p>
-          <h1>모든 작업을 완료했습니다</h1>
-          <p>50개의 영수증 검토가 안전하게 저장되었습니다.</p>
+          <h1>You have completed all tasks</h1>
+          <p>Your review of all 50 receipts has been saved securely.</p>
           <div className="completion-note">
-            참여해주신 시간과 세심한 판단에 감사드립니다.
+            Thank you for your time and careful attention.
           </div>
           {googleFormUrl && (
             <div className="survey-panel">
-              <h2>마지막 설문</h2>
-              <p>아래 버튼을 눌러 후속 설문을 작성해주세요.</p>
+              <h2>Final survey</h2>
+              <p>Use the button below to complete the follow-up survey.</p>
               <a
                 className="primary-button survey-button"
                 href={googleFormUrl}
                 target="_blank"
                 rel="noreferrer"
               >
-                설문 작성하기
+                Take the survey
                 <ExternalLinkIcon />
               </a>
             </div>
@@ -301,15 +301,15 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
   const displayedTimerSeconds = timeLimitExceeded
     ? elapsedTimeSeconds - TASK_TIME_LIMIT_SECONDS
     : TASK_TIME_LIMIT_SECONDS - elapsedTimeSeconds;
-  const timerLabel = timeLimitExceeded ? '초과 시간' : '남은 시간';
+  const timerLabel = timeLimitExceeded ? 'Overtime' : 'Time left';
 
   return (
     <main className="task-shell">
       <header className="task-header">
         <div className="task-brand"><ReceiptIcon /><span>Receipt Review</span></div>
         <div className="header-stats">
-          <div className="progress-copy" aria-label={`진행률 ${itemNumber} / ${current.totalTasks}`}>
-            <span>진행률</span>
+          <div className="progress-copy" aria-label={`Progress ${itemNumber} of ${current.totalTasks}`}>
+            <span>Progress</span>
             <strong>{itemNumber} <small>/ {current.totalTasks}</small></strong>
           </div>
           <div
@@ -330,11 +330,11 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
       <section className="task-grid">
         <article className="receipt-panel">
           <div className="panel-heading">
-            <div><span className="step-label">STEP {String(itemNumber).padStart(2, '0')}</span><h1>영수증 확인</h1></div>
-            <div className="zoom-controls" aria-label="이미지 확대/축소">
-              <button type="button" onClick={() => setZoom((value) => Math.max(0.7, value - 0.2))} aria-label="축소">−</button>
+            <div><span className="step-label">STEP {String(itemNumber).padStart(2, '0')}</span><h1>Review receipt</h1></div>
+            <div className="zoom-controls" aria-label="Image zoom controls">
+              <button type="button" onClick={() => setZoom((value) => Math.max(0.7, value - 0.2))} aria-label="Zoom out">−</button>
               <output aria-live="polite">{Math.round(zoom * 100)}%</output>
-              <button type="button" onClick={() => setZoom((value) => Math.min(2.4, value + 0.2))} aria-label="확대">+</button>
+              <button type="button" onClick={() => setZoom((value) => Math.min(2.4, value + 0.2))} aria-label="Zoom in">+</button>
               <button type="button" className="reset-button" onClick={() => setZoom(0.85)}>Reset</button>
             </div>
           </div>
@@ -343,40 +343,40 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
             <img
               key={task.imageUrl}
               src={task.imageUrl}
-              alt={`${itemNumber}번째 영수증`}
+              alt={`Receipt ${itemNumber}`}
               style={{ width: `${zoom * 100}%` }}
               draggable={false}
             />
           </div>
-          <p className="zoom-hint">이미지가 작다면 + 버튼으로 확대하고 스크롤해 확인하세요.</p>
+          <p className="zoom-hint">If the image is too small, use the + button to zoom in and scroll to review it.</p>
         </article>
 
         <article className="answer-panel">
           <div className="question-number">QUESTION {String(itemNumber).padStart(2, '0')}</div>
           <h2>{task.question}</h2>
-          <p className="answer-guidance">영수증에 표시된 내용을 기준으로 답변해주세요.</p>
+          <p className="answer-guidance">Answer based on the information shown on the receipt.</p>
           <form onSubmit={submitAnswer}>
-            <label htmlFor="worker-answer">답변</label>
+            <label htmlFor="worker-answer">Answer</label>
             <input
               ref={answerInputRef}
               id="worker-answer"
               name="answer"
               value={answer}
               onChange={(event) => setAnswer(event.target.value)}
-              placeholder="답변을 입력하세요"
+              placeholder="Enter your answer"
               autoComplete="off"
               maxLength={500}
               disabled={busy}
             />
             {error && <p className="inline-error" role="alert">{error}</p>}
             <button className="primary-button submit-button" type="submit" disabled={busy || !answer.trim()}>
-              {busy ? '저장 중…' : itemNumber === current.totalTasks ? '제출하고 완료' : '제출하고 다음'}
+              {busy ? 'Saving…' : itemNumber === current.totalTasks ? 'Submit and finish' : 'Submit and continue'}
               {!busy && <ArrowIcon />}
             </button>
           </form>
           <div className="privacy-note">
             <LockIcon />
-            <p><strong>답변은 안전하게 저장됩니다.</strong><span>제출 후에는 이전 문항으로 돌아갈 수 없습니다.</span></p>
+            <p><strong>Your answer is saved securely.</strong><span>You cannot return to a question after submitting it.</span></p>
           </div>
         </article>
       </section>

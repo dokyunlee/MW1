@@ -27,5 +27,5 @@ export async function readJsonObject(request: Request): Promise<Record<string, u
 
 export function publicError(error: unknown): NextResponse {
   console.error(error);
-  return noStoreJson({ error: '요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.' }, { status: 500 });
+  return noStoreJson({ error: 'We could not process your request. Please try again shortly.' }, { status: 500 });
 }

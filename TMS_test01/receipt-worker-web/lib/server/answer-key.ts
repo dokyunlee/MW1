@@ -4,9 +4,9 @@ import answerKeySource from '@/server/answer-key.json';
 import { TOTAL_TASKS } from '@/lib/constants';
 
 type RawAnswerKeyRow = {
-  영수증: string;
-  배정_type: string;
-  질문: string;
+  receipt: string;
+  assigned_type: string;
+  question: string;
   [key: string]: unknown;
 };
 
@@ -19,21 +19,21 @@ export type ServerAnswerKey = {
 };
 
 function parseRow(row: RawAnswerKeyRow): ServerAnswerKey {
-  const answerGroup = row[row.배정_type];
-  if (!answerGroup || typeof answerGroup !== 'object' || !('정답' in answerGroup)) {
-    throw new Error(`Answer key is missing an answer for ${row.영수증}`);
+  const answerGroup = row[row.assigned_type];
+  if (!answerGroup || typeof answerGroup !== 'object' || !('answer' in answerGroup)) {
+    throw new Error(`Answer key is missing an answer for ${row.receipt}`);
   }
 
-  const correctAnswer = (answerGroup as { 정답: unknown }).정답;
+  const correctAnswer = (answerGroup as { answer: unknown }).answer;
   if (typeof correctAnswer !== 'string' && typeof correctAnswer !== 'number') {
-    throw new Error(`Answer key has an invalid answer for ${row.영수증}`);
+    throw new Error(`Answer key has an invalid answer for ${row.receipt}`);
   }
 
   return {
-    receiptId: row.영수증.replace(/\.png$/i, ''),
-    fileName: row.영수증,
-    assignedType: row.배정_type,
-    question: row.질문,
+    receiptId: row.receipt.replace(/^receipt_en_/, 'receipt_').replace(/\.png$/i, ''),
+    fileName: row.receipt,
+    assignedType: row.assigned_type,
+    question: row.question,
     correctAnswer,
   };
 }

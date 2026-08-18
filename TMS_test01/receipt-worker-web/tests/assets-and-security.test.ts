@@ -7,16 +7,27 @@ const projectRoot = path.resolve(import.meta.dirname, '..');
 
 test('all 50 receipt files match 50 unique answer-key rows', async () => {
   const files = (await readdir(path.join(projectRoot, 'public', 'receipts')))
-    .filter((file) => /^receipt_\d{2}\.png$/.test(file))
+    .filter((file) => /^receipt_en_\d{2}\.png$/.test(file))
     .sort();
   const key = JSON.parse(
     await readFile(path.join(projectRoot, 'server', 'answer-key.json'), 'utf8'),
   ) as Array<Record<string, unknown>>;
-  const keyedFiles = key.map((row) => String(row['영수증'])).sort();
+  const keyedFiles = key.map((row) => String(row.receipt)).sort();
 
   assert.equal(files.length, 50);
   assert.equal(new Set(keyedFiles).size, 50);
   assert.deepEqual(files, keyedFiles);
+});
+
+test('the English answer key maps to stable internal receipt IDs', async () => {
+  const answerKeySource = await readFile(
+    path.join(projectRoot, 'lib', 'server', 'answer-key.ts'),
+    'utf8',
+  );
+
+  assert.match(answerKeySource, /replace\(\/\^receipt_en_\//);
+  assert.match(answerKeySource, /row\.question/);
+  assert.match(answerKeySource, /answerGroup as \{ answer: unknown \}/);
 });
 
 test('answer key is outside public and never imported by a Client Component', async () => {
@@ -73,6 +84,21 @@ test('20-minute threshold never blocks task loading or submission', async () => 
   assert.doesNotMatch(currentMigration, /raise exception 'Task time limit expired'/);
   assert.match(currentMigration, /when p_completion_time_ms > p_time_limit_ms then 'INATTENTIVE'/);
   assert.match(currentMigration, /elapsed_time_ms = v_completion_time_ms/);
+});
+
+test('only completed workers with at least 90 percent accuracy can be normal', async () => {
+  const initialMigration = await readFile(
+    path.join(projectRoot, 'supabase', 'migrations', '001_receipt_experiment.sql'),
+    'utf8',
+  );
+  const thresholdMigration = await readFile(
+    path.join(projectRoot, 'supabase', 'migrations', '004_accuracy_threshold_90.sql'),
+    'utf8',
+  );
+
+  assert.match(initialMigration, /'inattentive_accuracy_threshold',\s*0\.90/);
+  assert.match(thresholdMigration, /numeric_value\s*=\s*0\.90/);
+  assert.match(thresholdMigration, /set participant_status = public\.classify_participant/);
 });
 
 test('new Supabase secret keys are sent only as apikey headers', async () => {

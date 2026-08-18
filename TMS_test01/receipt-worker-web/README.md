@@ -28,7 +28,7 @@ Supabase PostgreSQL
 app/                         Worker UI + Vercel API
 components/receipt-task-app  Worker flow
 lib/server/                  answer validation, shuffle, server DB client
-public/receipts/             receipt_01.png … receipt_50.png
+public/receipts/             receipt_en_01.png … receipt_en_50.png
 server/answer-key.json       public 밖의 유일한 정답 원본
 supabase/migrations/         tables, functions, RLS, Views
 tests/                       normalization, randomization, asset/security checks
@@ -36,8 +36,8 @@ tests/                       normalization, randomization, asset/security checks
 
 ## 데이터와 정답 보안
 
-- 제공된 50개 이미지와 `answer_key.json`의 50개 행을 1:1로 검증했습니다.
-- JSON의 `질문`을 변경하거나 새로 생성하지 않습니다.
+- 제공된 영어 이미지 50개와 `answer_key_en.json`의 50개 행을 1:1로 검증했습니다.
+- JSON의 `question`을 변경하거나 새로 생성하지 않습니다.
 - `server/answer-key.json`은 Server Route에서만 import합니다. `public`, Client Component, HTML, localStorage에 들어가지 않습니다.
 - `/api/task/current`는 현재 이미지 URL, 질문, 진행률만 반환합니다.
 - `/api/task/submit`은 `{ "saved": true, "hasMore": boolean }`만 반환합니다. 정답, `isCorrect`, 정확도는 반환하지 않습니다.
@@ -71,21 +71,22 @@ tests/                       normalization, randomization, asset/security checks
 
 ### Answer normalization
 
-메뉴 답변은 Unicode NFKC, 앞뒤 공백 제거, 중복 공백 축소를 적용합니다. 가격 정답은 다음을 동일하게 판정합니다.
+메뉴 답변은 Unicode NFKC와 대소문자 정규화를 적용하고 모든 공백 차이를 무시합니다. 가격 정답은 다음을 동일하게 판정합니다.
 
 ```text
-4,000 = 4000 = 4000원 = ₩4,000
+$1,234.50 = 1,234.50 = 1234.50 = USD 1,234.50
 ```
 
-`약 4,000원`, `4천원` 같은 fuzzy/추정 표현은 자동 동치 처리하지 않습니다.
+`about $12.99`, `$12.99 approx.` 같은 fuzzy/추정 표현은 자동 동치 처리하지 않습니다.
 
 ## Supabase 설치
 
 1. Supabase 프로젝트를 생성합니다.
 2. 새 프로젝트라면 SQL Editor에서 [`supabase/migrations/001_receipt_experiment.sql`](supabase/migrations/001_receipt_experiment.sql)을 전체 실행합니다.
 3. 기존에 `001` 또는 `001` + `002`를 이미 실행한 배포 프로젝트라면 [`supabase/migrations/003_overtime_classification_and_elapsed_time.sql`](supabase/migrations/003_overtime_classification_and_elapsed_time.sql)을 전체 실행합니다. 이 migration이 기존의 20분 강제 종료 규칙을 진행 허용 규칙으로 교체하고 시간 컬럼과 View를 갱신합니다.
-4. Project Settings → API Keys에서 Project URL과 `sb_secret_...` 형식의 server-side Secret key를 확인합니다.
-5. 로컬 `.env.local` 또는 Vercel Environment Variables에 아래 값을 설정합니다.
+4. 기존 프로젝트에는 이어서 [`supabase/migrations/004_accuracy_threshold_90.sql`](supabase/migrations/004_accuracy_threshold_90.sql)을 실행합니다. 이 migration은 기준을 90%로 변경하고 기존 세션 분류도 다시 계산합니다. 새 프로젝트의 `001`에는 이미 90% 기준이 포함되어 있습니다.
+5. Project Settings → API Keys에서 Project URL과 `sb_secret_...` 형식의 server-side Secret key를 확인합니다.
+6. 로컬 `.env.local` 또는 Vercel Environment Variables에 아래 값을 설정합니다.
 
 ```bash
 SUPABASE_URL=https://YOUR_PROJECT.supabase.co
@@ -95,7 +96,7 @@ GOOGLE_FORM_URL=https://forms.gle/YOUR_GOOGLE_FORM_ID
 
 새 Secret key를 권장합니다. 기존 Legacy `service_role` JWT를 유지해야 하는 배포는 `SUPABASE_SERVICE_ROLE_KEY` 환경 변수도 계속 지원합니다. `NEXT_PUBLIC_SUPABASE_SECRET_KEY`, `NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY`, publishable key는 이 서버 권한 자리에 사용하지 마세요.
 
-`GOOGLE_FORM_URL`에는 `https://forms.gle/...` 또는 `https://docs.google.com/forms/...` 주소를 입력합니다. 설정된 경우에만 완료 페이지에 `설문 작성하기` 버튼이 표시됩니다. Vercel 환경변수를 추가하거나 수정한 뒤에는 반드시 새 Deployment를 실행합니다.
+`GOOGLE_FORM_URL`에는 `https://forms.gle/...` 또는 `https://docs.google.com/forms/...` 주소를 입력합니다. 설정된 경우에만 완료 페이지에 `Take the survey` 버튼이 표시됩니다. Vercel 환경변수를 추가하거나 수정한 뒤에는 반드시 새 Deployment를 실행합니다.
 
 ### Table 구조
 
@@ -115,14 +116,14 @@ GOOGLE_FORM_URL=https://forms.gle/YOUR_GOOGLE_FORM_ID
 
 `experiment_config`
 
-- `inattentive_accuracy_threshold = 0.70` 한 곳에서 정확도 threshold를 관리합니다.
+- `inattentive_accuracy_threshold = 0.90` 한 곳에서 정확도 threshold를 관리합니다. 50문항 중 45문항 이상 정답인 완료 Worker만 정확도 조건을 통과합니다.
 - `task_time_limit_minutes = 20` 한 곳에서 시간 기준을 관리합니다.
 
 정확도 threshold 변경 예:
 
 ```sql
 update public.experiment_config
-set numeric_value = 0.80
+set numeric_value = 0.90
 where config_key = 'inattentive_accuracy_threshold';
 ```
 
@@ -211,4 +212,4 @@ npm run dev
 
 실제 API end-to-end 테스트에는 migration이 적용된 Supabase 테스트 프로젝트의 환경 변수가 필요합니다. 단위 테스트는 가격/메뉴 정규화, 과도한 fuzzy 거부, Fisher–Yates 보존성, 50개 asset 매칭, Client/API 정답 비노출을 검사합니다.
 
-Migration 적용 뒤 Supabase SQL Editor에서 [`supabase/tests/classification_scenarios.sql`](supabase/tests/classification_scenarios.sql)을 실행하면 45/50 Normal, 22/50 저정확도 Inattentive, 50/50 고정확도이지만 21분 초과 Inattentive, 11/18 Dropout, 시작하지 않은 방문자 시나리오를 검증합니다. 전체가 transaction 안에서 실행되고 마지막에 rollback됩니다.
+Migration 적용 뒤 Supabase SQL Editor에서 [`supabase/tests/classification_scenarios.sql`](supabase/tests/classification_scenarios.sql)을 실행하면 45/50 Normal, 44/50 저정확도 Inattentive, 50/50 고정확도이지만 21분 초과 Inattentive, 11/18 Dropout, 시작하지 않은 방문자 시나리오를 검증합니다. 전체가 transaction 안에서 실행되고 마지막에 rollback됩니다.

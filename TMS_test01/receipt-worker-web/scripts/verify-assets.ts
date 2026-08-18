@@ -7,10 +7,10 @@ async function main() {
   const receiptDirectory = path.join(root, 'public', 'receipts');
   const answerKeyPath = path.join(root, 'server', 'answer-key.json');
   const receiptFiles = (await readdir(receiptDirectory))
-    .filter((file) => /^receipt_\d{2}\.png$/.test(file))
+    .filter((file) => /^receipt_en_\d{2}\.png$/.test(file))
     .sort();
   const rows = JSON.parse(await readFile(answerKeyPath, 'utf8')) as Array<Record<string, unknown>>;
-  const keyFiles = rows.map((row) => String(row['영수증'])).sort();
+  const keyFiles = rows.map((row) => String(row.receipt)).sort();
 
   assert.equal(receiptFiles.length, 50, 'Expected exactly 50 public receipt images');
   assert.equal(rows.length, 50, 'Expected exactly 50 answer-key rows');

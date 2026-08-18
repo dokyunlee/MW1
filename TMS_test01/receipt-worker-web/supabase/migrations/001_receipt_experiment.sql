@@ -11,8 +11,8 @@ insert into public.experiment_config (config_key, numeric_value, description)
 values
 (
   'inattentive_accuracy_threshold',
-  0.70,
-  'Operational research threshold. A completed worker below this accuracy is classified as potentially inattentive.'
+  0.90,
+  'Operational research threshold. A completed worker must answer at least 45 of 50 tasks correctly to be eligible for NORMAL classification.'
 ),
 (
   'task_time_limit_minutes',

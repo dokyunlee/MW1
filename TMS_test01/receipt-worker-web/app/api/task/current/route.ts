@@ -14,12 +14,12 @@ export async function GET(request: Request) {
   try {
     const sessionId = new URL(request.url).searchParams.get('sessionId');
     if (!isSessionId(sessionId)) {
-      return noStoreJson({ error: '유효하지 않은 세션입니다.' }, { status: 400 });
+      return noStoreJson({ error: 'This session is invalid.' }, { status: 400 });
     }
 
     const session = await getSession(sessionId);
     if (!session) {
-      return noStoreJson({ error: '세션을 찾을 수 없습니다.' }, { status: 404 });
+      return noStoreJson({ error: 'Session not found.' }, { status: 404 });
     }
 
     const timeRemainingSeconds = getTimeRemainingSeconds(session.started_at);

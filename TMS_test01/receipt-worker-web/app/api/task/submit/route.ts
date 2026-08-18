@@ -13,17 +13,17 @@ export async function POST(request: Request) {
     const receiptId = typeof body?.receiptId === 'string' ? body.receiptId : '';
 
     if (!body || !isSessionId(body.sessionId) || !receiptId || !answer || answer.length > 500) {
-      return noStoreJson({ error: '제출 내용을 확인해주세요.' }, { status: 400 });
+      return noStoreJson({ error: 'Please check your submission.' }, { status: 400 });
     }
 
     const session = await getSession(body.sessionId);
     if (!session || session.status !== 'started') {
-      return noStoreJson({ error: '진행 중인 세션을 찾을 수 없습니다.' }, { status: 409 });
+      return noStoreJson({ error: 'No active session was found.' }, { status: 409 });
     }
 
     const expectedReceiptId = session.receipt_order?.[session.current_index];
     if (!expectedReceiptId || receiptId !== expectedReceiptId) {
-      return noStoreJson({ error: '현재 작업과 제출 항목이 일치하지 않습니다.' }, { status: 409 });
+      return noStoreJson({ error: 'This submission does not match the current task.' }, { status: 409 });
     }
 
     const answerKey = getAnswerKey(expectedReceiptId);

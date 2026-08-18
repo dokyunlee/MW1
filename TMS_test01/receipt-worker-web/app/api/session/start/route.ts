@@ -10,12 +10,12 @@ export async function POST(request: Request) {
   try {
     const body = await readJsonObject(request);
     if (!body || !isSessionId(body.sessionId)) {
-      return noStoreJson({ error: '유효하지 않은 세션입니다.' }, { status: 400 });
+      return noStoreJson({ error: 'This session is invalid.' }, { status: 400 });
     }
 
     const session = await getSession(body.sessionId);
     if (!session) {
-      return noStoreJson({ error: '세션을 찾을 수 없습니다.' }, { status: 404 });
+      return noStoreJson({ error: 'Session not found.' }, { status: 404 });
     }
 
     if (session.status === 'opened') {

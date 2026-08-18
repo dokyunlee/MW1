@@ -45,7 +45,7 @@ begin
     raise exception 'NORMAL scenario failed: %', row_to_json(v_row);
   end if;
 
-  -- Potentially inattentive: 50 attempted, 22 correct, accuracy .44.
+  -- Boundary check: 50 attempted, 44 correct, accuracy .88.
   perform public.start_experiment_session(v_inattentive_id, v_order);
   for i in 1..50 loop
     perform public.mark_current_task_shown(v_inattentive_id);
@@ -54,16 +54,16 @@ begin
       format('receipt_%s', lpad(i::text, 2, '0')),
       'type1',
       'test answer',
-      i <= 22
+      i <= 44
     );
   end loop;
   perform public.complete_experiment_session(v_inattentive_id);
 
   select * into v_row from public.experiment_sessions where session_id = v_inattentive_id;
   if v_row.participant_status <> 'INATTENTIVE'
-     or v_row.task_accuracy <> 0.44
-     or v_row.correct_tasks <> 22
-     or v_row.incorrect_tasks <> 28 then
+     or v_row.task_accuracy <> 0.88
+     or v_row.correct_tasks <> 44
+     or v_row.incorrect_tasks <> 6 then
     raise exception 'INATTENTIVE scenario failed: %', row_to_json(v_row);
   end if;
 
