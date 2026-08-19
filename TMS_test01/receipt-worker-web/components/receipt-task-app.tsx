@@ -16,7 +16,7 @@ type ReceiptTaskAppProps = {
 };
 
 const REQUESTER_MESSAGE =
-  'You will review 40 receipts. Examine each receipt carefully and provide an accurate answer.';
+  'Thank you for contributing to this virtual receipt OCR task. Your careful judgment helps create reliable text data that can support the development and evaluation of language and accessibility technologies. No specialized knowledge is required, so please work at a pace that feels comfortable for you. We appreciate your skills and contribution.';
 
 function RequesterMessage({ message }: { message: string }) {
   return (
@@ -39,7 +39,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const payload = (await response.json().catch(() => ({}))) as T & { error?: string };
 
   if (!response.ok) {
-    throw new Error(payload.error || 'We could not process your request.');
+    throw new Error(payload.error || 'Unable to process the request.');
   }
   return payload;
 }
@@ -84,7 +84,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         setPhase('task');
         window.setTimeout(() => answerInputRef.current?.focus(), 100);
       } else {
-        throw new Error('The current task could not be loaded.');
+        throw new Error('Unable to load the current task.');
       }
     },
     [finalize],
@@ -120,7 +120,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         setError(
           initializationError instanceof Error
             ? initializationError.message
-            : 'The session could not be prepared.',
+            : 'Unable to prepare the session.',
         );
         setPhase('error');
       }
@@ -183,7 +183,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
       });
       await loadCurrent(sessionId);
     } catch (startError) {
-      setError(startError instanceof Error ? startError.message : 'The task could not be started.');
+      setError(startError instanceof Error ? startError.message : 'Unable to start the task.');
     } finally {
       setBusy(false);
     }
@@ -211,7 +211,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         await finalize(sessionId);
       }
     } catch (submitError) {
-      const message = submitError instanceof Error ? submitError.message : 'Your answer could not be saved.';
+      const message = submitError instanceof Error ? submitError.message : 'Unable to save the response.';
       setError(message);
     } finally {
       setBusy(false);
@@ -236,7 +236,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         <section className="status-card error-card">
           <div className="status-icon">!</div>
           <p className="eyebrow">Connection error</p>
-          <h1>We could not load the task</h1>
+          <h1>Unable to load the task</h1>
           <p>{error}</p>
           <button className="primary-button" onClick={() => window.location.reload()}>
             Try again
@@ -293,21 +293,27 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
           <div className="complete-icon" aria-hidden="true"><CheckIcon /></div>
           <p className="eyebrow">Task complete</p>
           <h1>You have completed all tasks</h1>
-          <p>Your review of all {current?.totalTasks ?? TOTAL_TASKS} receipts has been saved securely.</p>
+          <p>Your review of {current?.totalTasks ?? TOTAL_TASKS} receipts has been saved securely.</p>
           <div className="completion-note">
-            Thank you for your time and careful attention.
+            Thank you for your time and careful judgment.
+          </div>
+          <div className="completion-note">
+            Thank you for completing all receipt OCR tasks. The data you reviewed and entered will be used to
+            evaluate and improve the OCR system's text-recognition accuracy. Human-verified results are especially
+            important for identifying what the system recognizes accurately and inaccurately. Thank you for
+            contributing your time and judgment.
           </div>
           {googleFormUrl && (
             <div className="survey-panel">
               <h2>Final survey</h2>
-              <p>Use the button below to complete the follow-up survey.</p>
+              <p>Use the button below to complete a follow-up survey.</p>
               <a
                 className="primary-button survey-button"
                 href={googleFormUrl}
                 target="_blank"
                 rel="noreferrer"
               >
-                Take the survey
+                Complete survey
                 <ExternalLinkIcon />
               </a>
             </div>
@@ -325,14 +331,14 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
   const displayedTimerSeconds = timeLimitExceeded
     ? elapsedTimeSeconds - TASK_TIME_LIMIT_SECONDS
     : TASK_TIME_LIMIT_SECONDS - elapsedTimeSeconds;
-  const timerLabel = timeLimitExceeded ? 'Overtime' : 'Time left';
+  const timerLabel = timeLimitExceeded ? 'Time over' : 'Time remaining';
 
   return (
     <main className="task-shell">
       <header className="task-header">
         <div className="task-brand"><ReceiptIcon /><span>Receipt Review</span></div>
         <div className="header-stats">
-          <div className="progress-copy" aria-label={`Progress ${itemNumber} of ${current.totalTasks}`}>
+          <div className="progress-copy" aria-label={`Progress ${itemNumber} / ${current.totalTasks}`}>
             <span>Progress</span>
             <strong>{itemNumber} <small>/ {current.totalTasks}</small></strong>
           </div>
@@ -354,7 +360,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
       <section className="task-grid">
         <article className="receipt-panel">
           <div className="panel-heading">
-            <div><span className="step-label">STEP {String(itemNumber).padStart(2, '0')}</span><h1>Review receipt</h1></div>
+            <div><span className="step-label">STEP {String(itemNumber).padStart(2, '0')}</span><h1>Receipt</h1></div>
             <div className="zoom-controls" aria-label="Image zoom controls">
               <button type="button" onClick={() => setZoom((value) => Math.max(0.7, value - 0.2))} aria-label="Zoom out">−</button>
               <output aria-live="polite">{Math.round(zoom * 100)}%</output>
@@ -372,7 +378,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
               draggable={false}
             />
           </div>
-          <p className="zoom-hint">If the image is too small, use the + button to zoom in and scroll to review it.</p>
+          <p className="zoom-hint">If the image is too small, use + to zoom in and scroll to review it.</p>
         </article>
 
         <article className="answer-panel">
@@ -394,13 +400,13 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
             />
             {error && <p className="inline-error" role="alert">{error}</p>}
             <button className="primary-button submit-button" type="submit" disabled={busy || !answer.trim()}>
-              {busy ? 'Saving…' : itemNumber === current.totalTasks ? 'Submit and finish' : 'Submit and continue'}
+              {busy ? 'Saving…' : itemNumber === current.totalTasks ? 'Submit and complete' : 'Submit and next'}
               {!busy && <ArrowIcon />}
             </button>
           </form>
           <div className="privacy-note">
             <LockIcon />
-            <p><strong>Your answer is saved securely.</strong><span>You cannot return to a question after submitting it.</span></p>
+            <p><strong>Your answer is saved securely.</strong><span>You cannot return to a previous question after submitting.</span></p>
           </div>
         </article>
       </section>
@@ -426,6 +432,10 @@ function LockIcon() {
 
 function TimerIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M9 2h6M12 5v3M12 13l3-2"/></svg>;
+}
+
+function MessageIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v10H9l-4 4V5Z"/><path d="M9 9h6M9 12h4"/></svg>;
 }
 
 function ExternalLinkIcon() {

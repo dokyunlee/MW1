@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Receipt Review Task',
-  description: 'A research task for reviewing receipts and answering questions.',
+  description: 'A research task that asks workers to review receipts and answer questions.',
   robots: { index: false, follow: false },
 };
 
