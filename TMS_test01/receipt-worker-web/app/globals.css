@@ -63,6 +63,7 @@ svg {
 }
 
 .intro-card {
+  width: min(100%, 860px);
   padding: 52px 64px 46px;
   border-top: 6px solid var(--navy);
 }
@@ -86,16 +87,59 @@ svg {
   letter-spacing: -.045em;
 }
 
-.intro-lead {
-  max-width: 500px;
-  margin: 0 auto;
+.intro-heading {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.intro-heading h1 {
+  margin-top: 0;
+}
+
+.intro-heading p {
+  margin: 0;
   color: var(--muted);
   font-size: 16px;
-  line-height: 1.8;
+  line-height: 1.65;
+}
+
+.requester-message {
+  padding: 24px 26px;
+  border: 1px solid rgba(45, 67, 143, .18);
+  border-radius: 18px;
+  background: #f7f8fc;
+  text-align: left;
+}
+
+.requester-message-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  color: var(--navy);
+}
+
+.requester-message-heading svg {
+  flex: 0 0 19px;
+  width: 19px;
+}
+
+.requester-message-heading h2 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.requester-message > p {
+  margin: 0;
+  color: #47575b;
+  font-size: 14px;
+  line-height: 1.75;
 }
 
 .instruction-panel {
-  margin: 32px 0 28px;
+  margin: 20px 0 0;
   padding: 24px 26px;
   border: 1px solid var(--line);
   border-radius: 18px;
@@ -143,17 +187,38 @@ svg {
 
 .time-limit-notice {
   display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 18px;
-  padding-top: 16px;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 24px 0 28px;
+  padding: 20px 4px 0;
   border-top: 1px solid var(--line);
   color: var(--navy);
-  font-size: 13px;
-  font-weight: 700;
+  text-align: left;
 }
 
-.time-limit-notice svg { width: 18px; }
+.time-limit-notice svg {
+  flex: 0 0 20px;
+  width: 20px;
+  margin-top: 1px;
+}
+
+.time-limit-notice p {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.time-limit-notice strong {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.time-limit-notice span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
 
 .primary-button {
   min-height: 54px;
@@ -555,8 +620,10 @@ input:focus-visible {
   .intro-card { padding: 34px 22px 28px; }
   .status-card { padding: 48px 24px; }
   .intro-card h1 { font-size: 31px; }
-  .intro-lead { font-size: 14px; }
-  .instruction-panel { margin-top: 26px; padding: 20px 16px; }
+  .intro-heading { margin-bottom: 26px; }
+  .intro-heading p { font-size: 14px; }
+  .requester-message { padding: 20px 16px; }
+  .instruction-panel { margin-top: 16px; padding: 20px 16px; }
   .instruction-panel li { align-items: flex-start; }
 
   .task-shell { padding: 0; }
