@@ -290,7 +290,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
     return (
       <main className="center-stage complete-stage">
         <section className="status-card complete-card">
-          <p className="eyebrow">Task complete</p>
+          <p className="eyebrow"><b>Task complete</b></p>
           <h1>You have completed all tasks</h1>
           <p>Your review of {current?.totalTasks ?? TOTAL_TASKS} receipts has been saved securely.</p>
           <div className="completion-note">
