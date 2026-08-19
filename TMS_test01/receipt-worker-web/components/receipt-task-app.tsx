@@ -15,6 +15,21 @@ type ReceiptTaskAppProps = {
   googleFormUrl?: string;
 };
 
+const REQUESTER_MESSAGE =
+  'You will review 40 receipts. Examine each receipt carefully and provide an accurate answer.';
+
+function RequesterMessage({ message }: { message: string }) {
+  return (
+    <section className="requester-message" aria-labelledby="requester-message-title">
+      <div className="requester-message-heading">
+        <MessageIcon />
+        <h2 id="requester-message-title">Message from the requester</h2>
+      </div>
+      <p>{message}</p>
+    </section>
+  );
+}
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
@@ -235,22 +250,30 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
     return (
       <main className="center-stage intro-stage">
         <section className="intro-card">
-          <h1>Review each receipt<br />and answer the question</h1>
-          <p className="intro-lead">
-            You will review {TOTAL_TASKS} receipts. Examine each receipt carefully and provide an accurate
-            answer.
-          </p>
+          <header className="intro-heading">
+            <h1>Virtual Receipt OCR Task</h1>
+            <p>Review {TOTAL_TASKS} receipts and answer one question about each.</p>
+          </header>
+
+          <RequesterMessage message={REQUESTER_MESSAGE} />
 
           <div className="instruction-panel">
-            <p className="instruction-title">Instructions</p>
+            <p className="instruction-title">How it works</p>
             <ol>
               <li><span>1</span><p>Review the receipt image.</p></li>
-              <li><span>2</span><p>Read the question shown on the screen.</p></li>
+              <li><span>2</span><p>Read the question on the screen.</p></li>
               <li><span>3</span><p>Enter your answer based on the receipt.</p></li>
               <li><span>4</span><p>Submit your answer to move to the next receipt.</p></li>
-              <li><span>5</span><p>The task ends after all {TOTAL_TASKS} receipts are completed.</p></li>
+              <li><span>5</span><p>The task ends after all {TOTAL_TASKS} receipts are complete.</p></li>
             </ol>
-            <div className="time-limit-notice"><TimerIcon /><span>The target time for the full task is 20 minutes. You may continue after that.</span></div>
+          </div>
+
+          <div className="time-limit-notice">
+            <TimerIcon />
+            <p>
+              <strong>Target time: approximately 20 minutes.</strong>
+              <span>You may continue working at your own pace if you need more time.</span>
+            </p>
           </div>
 
           {error && <p className="inline-error" role="alert">{error}</p>}
