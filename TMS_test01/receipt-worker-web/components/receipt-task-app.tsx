@@ -16,7 +16,7 @@ type ReceiptTaskAppProps = {
 };
 
 const REQUESTER_MESSAGE =
-  'Thank you for contributing to this virtual receipt OCR task. Your careful judgment helps create reliable text data that can support the development and evaluation of language and accessibility technologies. No specialized knowledge is required, so please work at a pace that feels comfortable for you. We appreciate your skills and contribution.';
+  'You will review 40 receipts. Examine each receipt carefully and provide an accurate answer.';
 
 function RequesterMessage({ message }: { message: string }) {
   return (
@@ -295,13 +295,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
           <h1>You have completed all tasks</h1>
           <p>Your review of {current?.totalTasks ?? TOTAL_TASKS} receipts has been saved securely.</p>
           <div className="completion-note">
-            Thank you for your time and careful judgment.
-          </div>
-          <div className="completion-note">
-            Thank you for completing all receipt OCR tasks. The data you reviewed and entered will be used to
-            evaluate and improve the OCR system's text-recognition accuracy. Human-verified results are especially
-            important for identifying what the system recognizes accurately and inaccurately. Thank you for
-            contributing your time and judgment.
+            Thank you for your time and careful attention.
           </div>
           {googleFormUrl && (
             <div className="survey-panel">
