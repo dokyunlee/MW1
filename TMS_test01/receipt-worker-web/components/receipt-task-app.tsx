@@ -5,6 +5,7 @@ import {
   HEARTBEAT_INTERVAL_MS,
   SESSION_STORAGE_KEY,
   TASK_TIME_LIMIT_SECONDS,
+  TOTAL_TASKS,
 } from '@/lib/constants';
 import type { CurrentTaskResponse } from '@/lib/types';
 
@@ -236,7 +237,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         <section className="intro-card">
           <h1>Review each receipt<br />and answer the question</h1>
           <p className="intro-lead">
-            You will review 50 receipts. Examine each receipt carefully and provide an accurate
+            You will review {TOTAL_TASKS} receipts. Examine each receipt carefully and provide an accurate
             answer.
           </p>
 
@@ -247,7 +248,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
               <li><span>2</span><p>Read the question shown on the screen.</p></li>
               <li><span>3</span><p>Enter your answer based on the receipt.</p></li>
               <li><span>4</span><p>Submit your answer to move to the next receipt.</p></li>
-              <li><span>5</span><p>The task ends after all 50 receipts are completed.</p></li>
+              <li><span>5</span><p>The task ends after all {TOTAL_TASKS} receipts are completed.</p></li>
             </ol>
             <div className="time-limit-notice"><TimerIcon /><span>The target time for the full task is 20 minutes. You may continue after that.</span></div>
           </div>
@@ -269,7 +270,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
           <div className="complete-icon" aria-hidden="true"><CheckIcon /></div>
           <p className="eyebrow">Task complete</p>
           <h1>You have completed all tasks</h1>
-          <p>Your review of all 50 receipts has been saved securely.</p>
+          <p>Your review of all {current?.totalTasks ?? TOTAL_TASKS} receipts has been saved securely.</p>
           <div className="completion-note">
             Thank you for your time and careful attention.
           </div>

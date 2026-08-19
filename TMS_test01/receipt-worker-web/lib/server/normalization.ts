@@ -1,6 +1,8 @@
-export function normalizeText(value: string | number): string {
-  return String(value).normalize('NFKC').replace(/\s+/g, '').toLocaleLowerCase('en-US');
+export function normalizeAnswer(value: string | number | null | undefined): string {
+  return String(value ?? '').normalize('NFKC').trim().replace(/\s+/g, '').toLocaleLowerCase('en-US');
 }
+
+export const normalizeText = normalizeAnswer;
 
 export function parseUnambiguousPrice(value: string | number): number | null {
   if (typeof value === 'number') {
@@ -31,5 +33,5 @@ export function validateAnswer(workerAnswer: string, correctAnswer: string | num
     return parseUnambiguousPrice(workerAnswer) === correctPrice;
   }
 
-  return normalizeText(workerAnswer) === normalizeText(correctAnswer);
+  return normalizeAnswer(workerAnswer) === normalizeAnswer(correctAnswer);
 }

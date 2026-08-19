@@ -18,7 +18,7 @@ test('timer resumes from server started_at after refresh', () => {
   assert.equal(getElapsedTimeSeconds(startedAt, elevenMinutesLater), 660);
 });
 
-test('20 minutes is an overtime classification threshold, not a negative timer', () => {
+test('20 minutes is a non-blocking target and never produces a negative timer', () => {
   const startedAt = '2026-08-13T06:00:00.000Z';
   const deadline = Date.parse(startedAt) + 20 * 60 * 1000;
   assert.equal(getTimeRemainingSeconds(startedAt, deadline), 0);

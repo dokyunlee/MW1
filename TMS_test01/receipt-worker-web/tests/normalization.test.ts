@@ -1,12 +1,19 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { normalizeText, parseUnambiguousPrice, validateAnswer } from '../lib/server/normalization';
+import { normalizeAnswer, parseUnambiguousPrice, validateAnswer } from '../lib/server/normalization';
 
-test('menu answers ignore all whitespace and letter case', () => {
-  assert.equal(normalizeText('  Bacon   Burger  '), 'baconburger');
-  assert.equal(validateAnswer('BaconBurger', 'Bacon Burger'), true);
-  assert.equal(validateAnswer('  bacon   burger ', 'Bacon Burger'), true);
-  assert.equal(validateAnswer('Cheeseburger', 'Bacon Burger'), false);
+test('English answers ignore letter case and all whitespace', () => {
+  for (const input of ['ICE CREAM', 'ice cream', 'Ice Cream', 'icecream', 'ICECREAM', 'i c e c r e a m']) {
+    assert.equal(normalizeAnswer(input), 'icecream', input);
+    assert.equal(validateAnswer(input, 'Ice Cream'), true, input);
+  }
+});
+
+test('Korean answers ignore all whitespace but do not use fuzzy matching', () => {
+  for (const input of ['카페라떼', '카페 라떼', '카 페 라 떼']) {
+    assert.equal(validateAnswer(input, '카페라떼'), true, input);
+  }
+  assert.equal(validateAnswer('카페라테', '카페라떼'), false);
 });
 
 test('unambiguous US price formats compare as the same value', () => {

@@ -1,4 +1,4 @@
-import { getReceiptIds } from '@/lib/server/answer-key';
+import { getEligibleReceiptIds } from '@/lib/server/answer-key';
 import { isSessionId, noStoreJson, publicError, readJsonObject } from '@/lib/server/http';
 import { fisherYatesShuffle } from '@/lib/server/randomize';
 import { callRpc, getSession } from '@/lib/server/supabase';
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     if (session.status === 'opened') {
       await callRpc<null>('start_experiment_session', {
         p_session_id: body.sessionId,
-        p_receipt_order: fisherYatesShuffle(getReceiptIds()),
+        p_receipt_order: fisherYatesShuffle(getEligibleReceiptIds()),
       });
     }
 

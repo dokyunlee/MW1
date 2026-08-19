@@ -60,7 +60,7 @@ test('submit and complete API responses do not expose correctness or accuracy', 
   assert.doesNotMatch(completeRoute, /noStoreJson\(\{[^}]*accuracy/);
 });
 
-test('20-minute threshold never blocks task loading or submission', async () => {
+test('20-minute target never blocks task loading, submission, or accuracy-only classification', async () => {
   const currentRoute = await readFile(
     path.join(projectRoot, 'app', 'api', 'task', 'current', 'route.ts'),
     'utf8',
@@ -69,36 +69,53 @@ test('20-minute threshold never blocks task loading or submission', async () => 
     path.join(projectRoot, 'app', 'api', 'task', 'submit', 'route.ts'),
     'utf8',
   );
-  const currentMigration = await readFile(
+  const receipt40Migration = await readFile(
     path.join(
       projectRoot,
       'supabase',
       'migrations',
-      '003_overtime_classification_and_elapsed_time.sql',
+      '005_receipt40_pool_and_classification.sql',
     ),
     'utf8',
   );
 
   assert.doesNotMatch(currentRoute, /status:\s*410|Task time limit expired/);
   assert.doesNotMatch(submitRoute, /status:\s*410|Task time limit expired|hasTimeLimitExceeded/);
-  assert.doesNotMatch(currentMigration, /raise exception 'Task time limit expired'/);
-  assert.match(currentMigration, /when p_completion_time_ms > p_time_limit_ms then 'INATTENTIVE'/);
-  assert.match(currentMigration, /elapsed_time_ms = v_completion_time_ms/);
+  assert.doesNotMatch(receipt40Migration, /raise exception 'Task time limit expired'/);
+  assert.doesNotMatch(receipt40Migration, /when p_completion_time_ms > p_time_limit_ms/);
+  assert.match(receipt40Migration, /when p_task_accuracy < p_threshold then 'INATTENTIVE'/);
+  assert.match(receipt40Migration, /elapsed_time_ms = v_completion_time_ms/);
 });
 
-test('only completed workers with at least 90 percent accuracy can be normal', async () => {
-  const initialMigration = await readFile(
-    path.join(projectRoot, 'supabase', 'migrations', '001_receipt_experiment.sql'),
-    'utf8',
-  );
-  const thresholdMigration = await readFile(
-    path.join(projectRoot, 'supabase', 'migrations', '004_accuracy_threshold_90.sql'),
+test('Supabase migration enforces the 40-item eligible pool and preserves legacy 50-task rows', async () => {
+  const receipt40Migration = await readFile(
+    path.join(projectRoot, 'supabase', 'migrations', '005_receipt40_pool_and_classification.sql'),
     'utf8',
   );
 
-  assert.match(initialMigration, /'inattentive_accuracy_threshold',\s*0\.90/);
-  assert.match(thresholdMigration, /numeric_value\s*=\s*0\.90/);
-  assert.match(thresholdMigration, /set participant_status = public\.classify_participant/);
+  assert.match(receipt40Migration, /v_item_count <> 40 or v_unique_count <> 40/);
+  assert.match(receipt40Migration, /total_tasks in \(40, 50\)/);
+  assert.match(receipt40Migration, /alter column total_tasks set default 40/);
+  assert.match(receipt40Migration, /experiment_version = 'receipt40_v1'/);
+  for (const number of ['01', '19', '23', '27', '33', '35', '38', '41', '46', '47']) {
+    assert.match(receipt40Migration, new RegExp(`'receipt_${number}'`));
+  }
+  assert.doesNotMatch(receipt40Migration, /update public\.experiment_sessions\s+set participant_status/);
+});
+
+test('research views use participant status and dynamic session totals', async () => {
+  const receipt40Migration = await readFile(
+    path.join(projectRoot, 'supabase', 'migrations', '005_receipt40_pool_and_classification.sql'),
+    'utf8',
+  );
+
+  for (const viewName of ['worker_results', 'normal_workers', 'inattentive_workers', 'dropout_workers', 'experiment_metrics']) {
+    assert.match(receipt40Migration, new RegExp(`view public\\.${viewName}`));
+  }
+  assert.match(receipt40Migration, /where participant_status = 'NORMAL'/);
+  assert.match(receipt40Migration, /where participant_status = 'INATTENTIVE'/);
+  assert.match(receipt40Migration, /where participant_status = 'DROPOUT'/);
+  assert.match(receipt40Migration, /v_accuracy := v_correct::numeric \/ v_session\.total_tasks/);
 });
 
 test('new Supabase secret keys are sent only as apikey headers', async () => {

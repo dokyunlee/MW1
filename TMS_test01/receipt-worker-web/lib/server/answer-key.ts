@@ -1,7 +1,8 @@
 import 'server-only';
 
 import answerKeySource from '@/server/answer-key.json';
-import { TOTAL_TASKS } from '@/lib/constants';
+import { ALL_RECEIPT_COUNT, TOTAL_TASKS } from '@/lib/constants';
+import { getEligibleReceipts } from '@/lib/server/eligibility';
 
 type RawAnswerKeyRow = {
   receipt: string;
@@ -40,18 +41,24 @@ function parseRow(row: RawAnswerKeyRow): ServerAnswerKey {
 
 const parsedRows = (answerKeySource as RawAnswerKeyRow[]).map(parseRow);
 
-if (parsedRows.length !== TOTAL_TASKS) {
-  throw new Error(`Expected ${TOTAL_TASKS} answer-key rows, received ${parsedRows.length}`);
+if (parsedRows.length !== ALL_RECEIPT_COUNT) {
+  throw new Error(`Expected ${ALL_RECEIPT_COUNT} answer-key rows, received ${parsedRows.length}`);
 }
 
 const answerKeyMap = new Map(parsedRows.map((row) => [row.receiptId, row]));
 
-if (answerKeyMap.size !== TOTAL_TASKS) {
+if (answerKeyMap.size !== ALL_RECEIPT_COUNT) {
   throw new Error('Answer key contains duplicate receipt IDs');
 }
 
-export function getReceiptIds(): string[] {
-  return parsedRows.map((row) => row.receiptId);
+const eligibleRows = getEligibleReceipts(parsedRows);
+
+if (eligibleRows.length !== TOTAL_TASKS) {
+  throw new Error(`Expected ${TOTAL_TASKS} eligible receipts, received ${eligibleRows.length}`);
+}
+
+export function getEligibleReceiptIds(): string[] {
+  return eligibleRows.map((row) => row.receiptId);
 }
 
 export function getAnswerKey(receiptId: string): ServerAnswerKey | null {
