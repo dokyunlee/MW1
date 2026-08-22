@@ -306,7 +306,6 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
             <TimerIcon />
             <p>
               <strong>Target time: approximately 20 minutes.</strong>
-              <span>You may continue working at your own pace if you need more time.</span>
             </p>
           </div>
 
@@ -322,7 +321,6 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
               maxLength={200}
               disabled={busy}
             />
-            <p>Enter the Participant ID shown in Prolific.</p>
             {error && <p className="inline-error" role="alert">{error}</p>}
             {hasParticipantId && (
               <div className="onboarding-actions">
