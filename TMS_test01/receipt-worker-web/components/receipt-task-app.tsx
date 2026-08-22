@@ -9,7 +9,7 @@ import {
 } from '@/lib/constants';
 import type { CurrentTaskResponse } from '@/lib/types';
 
-type Phase = 'loading' | 'intro' | 'task' | 'complete' | 'error';
+type Phase = 'loading' | 'requester' | 'instructions' | 'task' | 'complete' | 'error';
 
 type ReceiptTaskAppProps = {
   googleFormUrl?: string;
@@ -47,6 +47,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
   const [phase, setPhase] = useState<Phase>('loading');
   const [sessionId, setSessionId] = useState('');
+  const [prolificParticipantId, setProlificParticipantId] = useState('');
   const [current, setCurrent] = useState<CurrentTaskResponse | null>(null);
   const [answer, setAnswer] = useState('');
   const [zoom, setZoom] = useState(0.85);
@@ -76,7 +77,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
       if (data.completed) {
         setPhase('complete');
       } else if (data.status === 'opened') {
-        setPhase('intro');
+        setPhase('requester');
       } else if (data.status === 'started' && data.currentIndex >= data.totalTasks) {
         await finalize(id);
       } else if (data.task) {
@@ -172,14 +173,19 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
     return () => window.clearInterval(interval);
   }, [current?.elapsedTimeSeconds, phase]);
 
-  async function startTask() {
-    if (!sessionId || busy) return;
+  async function startTask(event: FormEvent) {
+    event.preventDefault();
+    const normalizedParticipantId = prolificParticipantId.trim();
+    if (!sessionId || !normalizedParticipantId || busy) return;
     setBusy(true);
     setError('');
     try {
       await api('/api/session/start', {
         method: 'POST',
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({
+          sessionId,
+          prolificParticipantId: normalizedParticipantId,
+        }),
       });
       await loadCurrent(sessionId);
     } catch (startError) {
@@ -246,19 +252,36 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
     );
   }
 
-  if (phase === 'intro') {
+  if (phase === 'requester') {
     return (
       <main className="center-stage intro-stage">
-        <section className="intro-card">
-          <header className="intro-heading">
-            <h1>Virtual Receipt OCR Task</h1>
-            <p>Review {TOTAL_TASKS} receipts and answer one question about each.</p>
+        <section className="intro-card requester-card">
+          <RequesterMessage message={REQUESTER_MESSAGE} />
+          <div className="onboarding-actions">
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => setPhase('instructions')}
+            >
+              Next page
+              <ArrowIcon />
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (phase === 'instructions') {
+    const hasParticipantId = prolificParticipantId.trim().length > 0;
+    return (
+      <main className="center-stage intro-stage">
+        <section className="intro-card instructions-card">
+          <header className="intro-heading instructions-heading">
+            <h1>How it works</h1>
           </header>
 
-          <RequesterMessage message={REQUESTER_MESSAGE} />
-
           <div className="instruction-panel">
-            <p className="instruction-title">How it works</p>
             <ol>
               <li><span>1</span><p>Review the receipt image.</p></li>
               <li><span>2</span><p>Read the question on the screen.</p></li>
@@ -276,11 +299,29 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
             </p>
           </div>
 
-          {error && <p className="inline-error" role="alert">{error}</p>}
-          <button className="primary-button start-button" onClick={startTask} disabled={busy}>
-            {busy ? 'Preparing…' : 'Start task'}
-            {!busy && <ArrowIcon />}
-          </button>
+          <form className="participant-form" onSubmit={startTask}>
+            <label htmlFor="prolific-participant-id">Prolific Participant ID</label>
+            <input
+              id="prolific-participant-id"
+              name="prolificParticipantId"
+              value={prolificParticipantId}
+              onChange={(event) => setProlificParticipantId(event.target.value)}
+              placeholder="Enter your Prolific Participant ID"
+              autoComplete="off"
+              maxLength={200}
+              disabled={busy}
+            />
+            <p>Enter the Participant ID shown in Prolific.</p>
+            {error && <p className="inline-error" role="alert">{error}</p>}
+            {hasParticipantId && (
+              <div className="onboarding-actions">
+                <button className="primary-button start-button" type="submit" disabled={busy}>
+                  {busy ? 'Preparing…' : 'Start task'}
+                  {!busy && <ArrowIcon />}
+                </button>
+              </div>
+            )}
+          </form>
         </section>
       </main>
     );
