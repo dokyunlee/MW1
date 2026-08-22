@@ -87,6 +87,10 @@ svg {
   letter-spacing: -.045em;
 }
 
+.complete-card h1 {
+  margin-bottom: 28px;
+}
+
 .intro-heading {
   margin-bottom: 32px;
   text-align: center;
