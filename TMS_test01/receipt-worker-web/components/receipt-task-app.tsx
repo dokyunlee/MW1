@@ -16,7 +16,7 @@ type ReceiptTaskAppProps = {
 };
 
 const REQUESTER_MESSAGE =
-  'You will review 40 receipts. Examine each receipt carefully and provide an accurate answer.';
+  'Thank you for participating in our task. Please carefully review the virtual receipt and enter the requested information into the provided fields. Make sure that each value matches the receipt exactly and check your entries for any errors.';
 
 function RequesterMessage({ message }: { message: string }) {
   return (
