@@ -30,6 +30,15 @@ function RequesterMessage({ message }: { message: string }) {
   );
 }
 
+function OnboardingHeading() {
+  return (
+    <header className="intro-heading">
+      <h1>Virtual Receipt OCR Task</h1>
+      <p>Review {TOTAL_TASKS} receipts and answer one question about each.</p>
+    </header>
+  );
+}
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
@@ -256,6 +265,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
     return (
       <main className="center-stage intro-stage">
         <section className="intro-card requester-card">
+          <OnboardingHeading />
           <RequesterMessage message={REQUESTER_MESSAGE} />
           <div className="onboarding-actions">
             <button
@@ -277,6 +287,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
     return (
       <main className="center-stage intro-stage">
         <section className="intro-card instructions-card">
+          <OnboardingHeading />
           <header className="intro-heading instructions-heading">
             <h1>How it works</h1>
           </header>

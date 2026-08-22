@@ -35,6 +35,8 @@ test('onboarding separates requester and instructions and conditionally renders 
   assert.match(source, /type Phase = 'loading' \| 'requester' \| 'instructions' \| 'task'/);
   assert.match(source, /setPhase\('requester'\)/);
   assert.match(source, /onClick=\{\(\) => setPhase\('instructions'\)\}/);
+  assert.match(source, /function OnboardingHeading\(\)/);
+  assert.equal((source.match(/<OnboardingHeading \/>/g) ?? []).length, 2);
   assert.match(source, /const hasParticipantId = prolificParticipantId\.trim\(\)\.length > 0/);
   assert.match(source, /\{hasParticipantId && \(/);
   assert.match(source, /prolificParticipantId: normalizedParticipantId/);
