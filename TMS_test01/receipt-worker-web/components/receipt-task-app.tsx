@@ -342,23 +342,20 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
     return (
       <main className="center-stage complete-stage">
         <section className="status-card complete-card">
-          <p className="eyebrow"><b>Task complete</b></p>
-          <h1>You have completed all tasks</h1>
-          <p>Your review of {current?.totalTasks ?? TOTAL_TASKS} receipts has been saved securely.</p>
+          <h1>Receipt review complete</h1>
           <div className="completion-note">
-            Thank you for your time and careful attention.
+            Thank you for your time and participation. <br />
+            To receive your Prolific completion code, please complete the follow-up survey.
           </div>
           {googleFormUrl && (
             <div className="survey-panel">
-              <h2>Final survey</h2>
-              <p>Use the button below to complete a follow-up survey.</p>
               <a
                 className="primary-button survey-button"
                 href={googleFormUrl}
                 target="_blank"
                 rel="noreferrer"
               >
-                Complete survey
+                Start survey
                 <ExternalLinkIcon />
               </a>
             </div>
