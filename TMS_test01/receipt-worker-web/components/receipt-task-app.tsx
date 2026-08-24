@@ -298,7 +298,8 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
               <li><span>2</span><p>Read the question on the screen.</p></li>
               <li><span>3</span><p>Enter your answer based on the receipt.</p></li>
               <li><span>4</span><p>Submit your answer to move to the next receipt.</p></li>
-              <li><span>5</span><p>The task ends after all {TOTAL_TASKS} receipts are complete.</p></li>
+              <li><span>5</span><p>Repeat these steps until all 40 receipts are complete.</p></li>
+              <li><span>6</span><p>After completing all 40 receipts, complete the Google Forms survey to finish the task.</p></li>
             </ol>
           </div>
 
@@ -342,8 +343,8 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
         <section className="status-card complete-card">
           <h1>Receipt review complete</h1>
           <div className="completion-note">
-            Thank you for your time and participation. <br />
-            To receive your Prolific completion code, please complete the follow-up survey.
+            Thank you for completing all 40 receipt tasks.<br /> 
+            To complete the overall task and receive your Prolific completion code, please complete the final survey.
           </div>
           {googleFormUrl && (
             <div className="survey-panel">
@@ -444,10 +445,6 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
               {!busy && <ArrowIcon />}
             </button>
           </form>
-          <div className="privacy-note">
-            <LockIcon />
-            <p><strong>Your answer is saved securely.</strong><span>You cannot return to a previous question after submitting.</span></p>
-          </div>
         </article>
       </section>
     </main>
