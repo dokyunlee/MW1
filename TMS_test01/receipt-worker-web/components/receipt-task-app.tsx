@@ -342,9 +342,15 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
       <main className="center-stage complete-stage">
         <section className="status-card complete-card">
           <h1>Receipt review complete</h1>
-          <div className="completion-note">
-            Thank you for completing all 40 receipt tasks.<br /> 
-            To complete the overall task and receive your Prolific completion code, please complete the final survey.
+          <div className="completion-note" aria-labelledby="completion-message-title">
+            <div className="requester-message-heading">
+              <MessageIcon />
+              <h2 id="completion-message-title">Message from the requester</h2>
+            </div>
+            <div>
+              Thank you for completing all 40 receipt tasks.<br />
+              To complete the overall task and receive your Prolific completion code, please complete the final survey.
+            </div>
           </div>
           {googleFormUrl && (
             <div className="survey-panel">
