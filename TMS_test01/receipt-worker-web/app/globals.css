@@ -130,7 +130,7 @@ svg {
 
 .requester-message-heading h2 {
   margin: 0;
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1.4;
   letter-spacing: 0;
 }
@@ -138,7 +138,7 @@ svg {
 .requester-message > p {
   margin: 0;
   color: #47575b;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.75;
 }
 
@@ -384,9 +384,11 @@ input:focus-visible {
   padding: 18px 22px;
   border-radius: 14px;
   color: #4b5c60;
-  background: var(--teal-soft);
-  font-size: 14px;
+  background: #f7f8fc;
+  font-size: 16px;
   line-height: 1.7;
+  text-align: left;
+  border: 1px solid rgba(45, 67, 143, .18);
 }
 
 .survey-panel {
@@ -701,7 +703,7 @@ input:focus-visible {
   .intro-heading p { font-size: 14px; }
   .requester-message { padding: 20px 16px; }
   .requester-card .requester-message { padding: 24px 20px; }
-  .requester-card .requester-message > p { font-size: 15px; }
+  .requester-card .requester-message > p { font-size: 18px; }
   .instruction-panel { margin-top: 16px; padding: 20px 16px; }
   .instruction-panel li { align-items: flex-start; }
 

@@ -299,7 +299,7 @@ export function ReceiptTaskApp({ googleFormUrl }: ReceiptTaskAppProps) {
               <li><span>3</span><p>Enter your answer based on the receipt.</p></li>
               <li><span>4</span><p>Submit your answer to move to the next receipt.</p></li>
               <li><span>5</span><p>Repeat these steps until all 40 receipts are complete.</p></li>
-              <li><span>6</span><p>After completing all 40 receipts, complete the Google Forms survey to finish the task.</p></li>
+              <li><span>6</span><p>After completing all 40 receipts, complete the survey to finish the task.</p></li>
             </ol>
           </div>
 
